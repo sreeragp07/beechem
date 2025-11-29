@@ -17,7 +17,7 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
           Stack(
             alignment: Alignment.topCenter,
             children: [
-              Image.asset("assets/images/Frame2.png",fit: BoxFit.fill,),
+              Image.asset("assets/images/Frame2.png", fit: BoxFit.fill),
               Positioned(
                 top: 115,
                 child: Text(
@@ -92,119 +92,132 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
               ),
               color: Colors.white,
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(15, 2, 15, 15),
+                padding: const EdgeInsets.fromLTRB(15, 15, 15, 15),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      // minVerticalPadding: 0,
-                      // visualDensity: VisualDensity(
-                      //   horizontal: 0,
-                      //   vertical: -4, // tightens vertical spacing further
-                      // ),
-                      leading: CircleAvatar(
-                        backgroundColor: Colors.amber,
-                        radius: 24,
-                        child: Icon(Icons.group, color: Colors.black87),
-                      ),
-                      title: Text(
-                        "John Doe",
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.amber,
+                          radius: 24,
+                          child: Icon(Icons.group, color: Colors.black87),
                         ),
-                      ),
-                      subtitle: Row(
-                        children: [
-                          Icon(Icons.phone, size: 16, color: Colors.grey[700]),
-
-                          SizedBox(width: 6),
-
-                          Text(
-                            "9876543210",
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-
-                          SizedBox(width: 10),
-
-                          Text(
-                            "•", // bold dot
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.grey[700],
-                            ),
-                          ),
-
-                          SizedBox(width: 10),
-
-                          Icon(
-                            Icons.person_3_rounded,
-                            size: 18,
-                            color: Colors.grey[700],
-                          ),
-
-                          SizedBox(width: 6),
-
-                          Expanded(
-                            child: Text(
-                              "Colony owner",
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey[700],
-                              ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                      trailing: IntrinsicWidth(
-                        child: Align(
-                          alignment: AlignmentGeometry.topRight,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 0,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.green.shade100,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(width: 1, color: Colors.green),
-                            ),
-                            child: SizedBox(
-                              height: 20,
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
                                 children: [
                                   Text(
-                                    "•", // bold dot
+                                    "John Doe",
                                     style: TextStyle(
-                                      fontSize: 15,
-                                      fontWeight: FontWeight.w800,
-                                      color: Colors.grey[700],
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-
-                                  SizedBox(width: 5),
-                                  Text(
-                                    "Active",
-                                    style: TextStyle(
-                                      color: Colors.green.shade700,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 10,
+                                  Spacer(),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 0,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.green.shade100,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(
+                                        width: 1,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                    child: SizedBox(
+                                      height: 20,
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "•", // bold dot
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.grey[700],
+                                            ),
+                                          ),
+                    
+                                          SizedBox(width: 5),
+                                          Text(
+                                            "Active",
+                                            style: TextStyle(
+                                              color: Colors.green.shade700,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 10,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.phone,
+                                    size: 16,
+                                    color: Colors.grey[700],
+                                  ),
+                    
+                                  SizedBox(width: 6),
+                    
+                                  Text(
+                                    "9876543210",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                    
+                                  SizedBox(width: 10),
+                    
+                                  Text(
+                                    "•", // bold dot
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                    
+                                  SizedBox(width: 10),
+                    
+                                  Icon(
+                                    Icons.person_3_rounded,
+                                    size: 18,
+                                    color: Colors.grey[700],
+                                  ),
+                    
+                                  SizedBox(width: 6),
+                    
+                                  Expanded(
+                                    child: Text(
+                                      "Colony owner",
+                                      style: TextStyle(
+                                        fontSize: 14,
+                                        color: Colors.grey[700],
+                                      ),
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                      ),
+                      ],
                     ),
+                    SizedBox(height: 10),
 
                     Divider(
                       thickness: 1,
@@ -236,7 +249,7 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
                           ),
                         ),
                       ],
-                    ),
+                    )
                   ],
                 ),
               ),

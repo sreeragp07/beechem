@@ -77,7 +77,7 @@ class _LoginScreenState extends State<LoginScreen> {
             controller: emailController,
             textInputType: TextInputType.emailAddress,
           ),
-      
+
           SizedBox(height: 10),
           inputField(
             hintText: 'password',
@@ -97,7 +97,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 Checkbox(
                   value: isChecked,
                   fillColor: WidgetStateProperty.all(Colors.amber),
-                  activeColor: Colors.black,
+                  activeColor: Colors.white,
+                  side: BorderSide(color: Colors.white),
                   onChanged: (value) {
                     setState(() {
                       isChecked = value!;
@@ -134,7 +135,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   backgroundColor: WidgetStateProperty.all(Colors.amber[400]),
                 ),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context)=> PerssonalListScreen()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PerssonalListScreen(),
+                    ),
+                  );
                 },
                 child: Text(
                   'LOGIN',
@@ -209,25 +215,38 @@ Widget inputField({
           left: 0,
           right: 0,
           top: 6,
-          child: TextField(
-            controller: controller,
-            obscureText: obscureText ?? false,
-            keyboardType: textInputType,
-            decoration: InputDecoration(
-              hintText: hintText,
-              hintStyle: TextStyle(color: Color(0xFF8A8A8A), fontSize: 16),
-              contentPadding: EdgeInsets.only(
-                top: 7,
-                bottom: 20,
-                left: 80, // text starts after the icon
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(40),
-                borderSide: BorderSide(color: Colors.grey),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(40),
-                borderSide: BorderSide(color: Color(0xFFF4C714), width: 1.5),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(40),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  blurRadius: 12,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: TextField(
+              controller: controller,
+              obscureText: obscureText ?? false,
+              keyboardType: textInputType,
+              decoration: InputDecoration(
+                hintText: hintText,
+                hintStyle: TextStyle(color: Color(0xFF8A8A8A), fontSize: 16),
+                contentPadding: EdgeInsets.only(
+                  top: 7,
+                  bottom: 20,
+                  left: 80, // text starts after the icon
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(40),
+                  borderSide: BorderSide(color: Colors.white),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(40),
+                  borderSide: BorderSide(color: Color(0xFFF4C714), width: 1.5),
+                ),
               ),
             ),
           ),
@@ -237,9 +256,16 @@ Widget inputField({
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: Colors.grey, // change to your preferred color
+              color: Colors.white, // change to your preferred color
               width: 2,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 12,
+                offset: Offset(0, 3),
+              ),
+            ],
           ),
           child: CircleAvatar(
             radius: 30,
