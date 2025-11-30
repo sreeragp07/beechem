@@ -1,3 +1,4 @@
+import 'package:beechem/screens/personal_details_screen.dart';
 import 'package:flutter/material.dart';
 
 class PerssonalListScreen extends StatefulWidget {
@@ -13,13 +14,39 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF5F7F9),
       body: Column(
         children: [
           Stack(
             alignment: Alignment.topCenter,
             children: [
               Image.asset("assets/images/Frame2.png", fit: BoxFit.fill),
+              Positioned(
+                top: 70,
+                right: 22,
+                child: CircleAvatar(
+                  radius: 19,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.person_3_rounded,
+                    size: 23,
+                    color: Colors.brown[900], // choose any color you want
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 70,
+                left: 22,
+                child: CircleAvatar(
+                  radius: 19,
+                  backgroundColor: Colors.white,
+                  child: Icon(
+                    Icons.grid_view_outlined,
+                    size: 23,
+                    color: Colors.brown[900], // choose any color you want
+                  ),
+                ),
+              ),
               Positioned(
                 top: 115,
                 child: Text(
@@ -117,6 +144,17 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PersonalDetailsScreen()),
+          );
+        },
+        backgroundColor: Colors.amber,
+        child: Icon(Icons.add, color: Colors.brown[900], size: 42),
+        shape: CircleBorder(),
+      ),
     );
   }
 }
@@ -132,6 +170,7 @@ Widget detailsCard({
   return Padding(
     padding: EdgeInsetsGeometry.symmetric(horizontal: 20),
     child: Card(
+      elevation: 0,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(25),
@@ -148,7 +187,7 @@ Widget detailsCard({
                 CircleAvatar(
                   backgroundColor: Colors.amber,
                   radius: 24,
-                  child: Icon(Icons.group, color: Colors.black87),
+                  child: Icon(Icons.group_outlined, color: Colors.black87),
                 ),
                 SizedBox(width: 10),
                 Expanded(
