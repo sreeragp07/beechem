@@ -1,5 +1,6 @@
 import 'package:beechem/screens/personal_list_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,188 +13,281 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool isChecked = false;
+  String? emailError;
+  String? passwordError;
+
+  bool validate() {
+    String email = emailController.text.trim();
+    String password = passwordController.text.trim();
+
+    setState(() {
+      // Email
+      if (email.isEmpty) {
+        emailError = "Email is required";
+      } else if (!RegExp(
+        r'^[\w\.\-]+@[\w\-]+\.[a-zA-Z]{2,4}$',
+      ).hasMatch(email)) {
+        emailError = "Invalid email address";
+      } else {
+        emailError = null;
+      }
+
+      // Password
+      if (password.isEmpty) {
+        passwordError = "Password is required";
+      } else if (password.length < 6) {
+        passwordError = "Password must be at least 6 characters";
+      } else {
+        passwordError = null;
+      }
+    });
+
+    return emailError == null && passwordError == null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadSavedEmail();
+  }
+
+  void loadSavedEmail() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? savedEmail = prefs.getString("saved_email");
+    bool? savedCheck = prefs.getBool("is_remembered");
+
+    if (savedEmail != null && savedCheck == true) {
+      emailController.text = savedEmail;
+      setState(() {
+        isChecked = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Stack(
-            alignment: Alignment.topCenter,
-            children: [
-              Image.asset(
-                "assets/images/Frame1.png",
-                width: double.infinity,
-                height: 330,
-                fit: BoxFit.fill,
-              ),
-              Positioned(
-                top: 128,
-                child: Image.asset(
-                  "assets/images/Vector.png",
-                  width: 82,
-                  height: 82,
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Stack(
+              alignment: Alignment.topCenter,
+              children: [
+                Image.asset(
+                  "assets/images/Frame1.png",
+                  width: double.infinity,
+                  height: 330,
+                  fit: BoxFit.fill,
                 ),
-              ),
-              Positioned(
-                top: 218,
-                child: Text(
-                  'BEE CHEM',
-                  style: TextStyle(
-                    fontSize: 32,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w900,
+                Positioned(
+                  top: 128,
+                  child: Image.asset(
+                    "assets/images/Vector.png",
+                    width: 82,
+                    height: 82,
                   ),
                 ),
-              ),
-            ],
-          ),
-          SizedBox(height: 43),
-          Text(
-            'Welcome Back!',
-            style: TextStyle(
-              fontSize: 28,
-              color: Colors.black,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          Text(
-            'Login to your account',
-            style: TextStyle(
-              height: 2.5,
-              fontSize: 16,
-              color: Color(0xFF8A8A8A),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: 30),
-          inputField(
-            hintText: 'Email address',
-            prefixIcon: Icon(
-              Icons.email_outlined,
-              size: 30,
-              color: Color(0xFF8A8A8A),
-            ),
-            controller: emailController,
-            textInputType: TextInputType.emailAddress,
-          ),
-
-          SizedBox(height: 10),
-          inputField(
-            hintText: 'password',
-            prefixIcon: Icon(
-              Icons.lock_outline,
-              size: 30,
-              color: Color(0xFF8A8A8A),
-            ),
-            controller: passwordController,
-            textInputType: TextInputType.visiblePassword,
-            obscureText: true,
-          ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: Row(
-              children: [
-                Checkbox(
-                  value: isChecked,
-                  fillColor: WidgetStateProperty.all(Colors.amber),
-                  activeColor: Colors.white,
-                  side: BorderSide(color: Colors.white),
-                  onChanged: (value) {
-                    setState(() {
-                      isChecked = value!;
-                    });
-                  },
+                Positioned(
+                  top: 218,
+                  child: Text(
+                    'BEE CHEM',
+                    style: TextStyle(
+                      fontSize: 32,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
-                Text("Remember me"),
-                Spacer(),
-                Padding(
-                  padding: const EdgeInsets.only(right: 20),
-                  child: InkWell(
-                    onTap: () {},
-                    child: Text(
-                      "FORGOT PASSWORD?",
-                      style: TextStyle(
-                        color: Colors.amber,
-                        fontWeight: FontWeight.w600,
+              ],
+            ),
+            SizedBox(height: 43),
+            Text(
+              'Welcome Back!',
+              style: TextStyle(
+                fontSize: 28,
+                color: Colors.black,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            Text(
+              'Login to your account',
+              style: TextStyle(
+                height: 2.5,
+                fontSize: 16,
+                color: Color(0xFF8A8A8A),
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            SizedBox(height: 30),
+            inputField(
+              hintText: 'Email address',
+              prefixIcon: Icon(
+                Icons.email_outlined,
+                size: 30,
+                color: Color(0xFF8A8A8A),
+              ),
+              controller: emailController,
+              textInputType: TextInputType.emailAddress,
+            ),
+            (emailError != null)
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        emailError!,
+                        style: TextStyle(color: Colors.red, fontSize: 13),
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+
+            SizedBox(height: 10),
+            inputField(
+              hintText: 'password',
+              prefixIcon: Icon(
+                Icons.lock_outline,
+                size: 30,
+                color: Color(0xFF8A8A8A),
+              ),
+              controller: passwordController,
+              textInputType: TextInputType.visiblePassword,
+              obscureText: true,
+            ),
+            (passwordError != null)
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        passwordError!,
+                        style: TextStyle(color: Colors.red, fontSize: 13),
+                      ),
+                    ),
+                  )
+                : SizedBox.shrink(),
+
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Row(
+                children: [
+                  Checkbox(
+                    value: isChecked,
+                    fillColor: WidgetStateProperty.all(Colors.amber),
+                    activeColor: Colors.white,
+                    side: BorderSide(color: Colors.white),
+                    onChanged: (value) {
+                      setState(() {
+                        isChecked = value!;
+                      });
+                    },
+                  ),
+                  Text("Remember me"),
+                  Spacer(),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
+                    child: InkWell(
+                      onTap: () {},
+                      child: Text(
+                        "FORGOT PASSWORD?",
+                        style: TextStyle(
+                          color: Colors.amber,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(height: 10),
-          // Login Button
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: WidgetStateProperty.all(Colors.amber[400]),
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => PerssonalListScreen(),
+            SizedBox(height: 10),
+            // Login Button
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: WidgetStateProperty.all(Colors.amber[400]),
+                  ),
+                  onPressed: () async {
+                    if (!validate()) return;
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+
+                    if (isChecked) {
+                      await prefs.setString(
+                        "saved_email",
+                        emailController.text,
+                      );
+                      await prefs.setBool("is_remembered", true);
+                    } else {
+                      await prefs.remove("saved_email");
+                      await prefs.setBool("is_remembered", false);
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PerssonalListScreen(),
+                      ),
+                    );
+                  },
+                  child: Text(
+                    'LOGIN',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Colors.brown[900],
                     ),
-                  );
-                },
-                child: Text(
-                  'LOGIN',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.brown[900],
                   ),
                 ),
               ),
             ),
-          ),
-          SizedBox(height: 40),
-          Row(
-            children: [
-              Expanded(
-                child: Divider(
-                  thickness: 1,
-                  color: Colors.grey,
-                  height: 10,
-                  indent: 20,
-                  endIndent: 5,
-                ),
-              ),
-              Text("OR"),
-              Expanded(
-                child: Divider(
-                  thickness: 1,
-                  color: Colors.grey,
-                  height: 10,
-                  indent: 5,
-                  endIndent: 20,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 35),
-          RichText(
-            text: TextSpan(
-              text: "Don't have an account? ",
-              style: TextStyle(color: Colors.black, fontSize: 16),
+            SizedBox(height: 40),
+            Row(
               children: [
-                TextSpan(
-                  text: 'REGISTER',
-                  style: TextStyle(
-                    color: Colors.amber,
-                    fontWeight: FontWeight.w600,
+                Expanded(
+                  child: Divider(
+                    thickness: 1,
+                    color: Colors.grey,
+                    height: 10,
+                    indent: 20,
+                    endIndent: 5,
+                  ),
+                ),
+                Text("OR"),
+                Expanded(
+                  child: Divider(
+                    thickness: 1,
+                    color: Colors.grey,
+                    height: 10,
+                    indent: 5,
+                    endIndent: 20,
                   ),
                 ),
               ],
             ),
-          ),
-        ],
+            SizedBox(height: 35),
+            RichText(
+              text: TextSpan(
+                text: "Don't have an account? ",
+                style: TextStyle(color: Colors.black, fontSize: 16),
+                children: [
+                  TextSpan(
+                    text: 'REGISTER',
+                    style: TextStyle(
+                      color: Colors.amber,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 35),
+          ],
+        ),
       ),
     );
   }
