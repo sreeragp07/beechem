@@ -20,7 +20,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
         password: event.password,
       );
       emit(LoginSuccess(data: response));
-        return;
+      return;
     } catch (e) {
       emit(LoginFailure());
     }

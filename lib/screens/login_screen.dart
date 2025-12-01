@@ -77,12 +77,11 @@ class _LoginScreenState extends State<LoginScreen> {
         body: BlocConsumer<LoginBloc, LoginState>(
           listener: (context, state) async {
             if (state is LoginSuccess) {
-              SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
+              SharedPreferences prefs = await SharedPreferences.getInstance();
               await prefs.setString(
-                              "access_token",
-                              state.data?.accessToken ?? '',
-                            );
+                "access_token",
+                state.data?.accessToken ?? '',
+              );
               showCustomSnackBar(
                 context: context,
                 message: "Successfull Login",
@@ -237,52 +236,58 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: 10),
                   // Login Button
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: WidgetStateProperty.all(
-                            Colors.amber[400],
-                          ),
-                        ),
-                        onPressed: () async {
-                          if (!validate()) return;
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-
-                          if (isChecked) {
-                            await prefs.setString(
-                              "saved_email",
-                              emailController.text,
-                            );
-                            await prefs.setBool("is_remembered", true);
-                          } else {
-                            await prefs.remove("saved_email");
-                            await prefs.setBool("is_remembered", false);
-                          }
-
-                          if (!mounted) return;
-
-                          context.read<LoginBloc>().add(
-                            CallLoginApiEvent(
-                              email: emailController.text,
-                              password: passwordController.text,
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all(
+                                Colors.amber[400],
+                              ),
                             ),
-                          );
-                        },
-                        child: Text(
-                          'LOGIN',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.brown[900],
+                            onPressed: () async {
+                              if (!validate()) return;
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                      
+                              if (isChecked) {
+                                await prefs.setString(
+                                  "saved_email",
+                                  emailController.text,
+                                );
+                                await prefs.setBool("is_remembered", true);
+                              } else {
+                                await prefs.remove("saved_email");
+                                await prefs.setBool("is_remembered", false);
+                              }
+                      
+                              if (!mounted) return;
+                      
+                              context.read<LoginBloc>().add(
+                                CallLoginApiEvent(
+                                  email: emailController.text,
+                                  password: passwordController.text,
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'LOGIN',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.brown[900],
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                    ),
+                      (state is LoginLoading) ? CircularProgressIndicator() : SizedBox.shrink()
+                    ],
                   ),
                   SizedBox(height: 40),
                   Row(

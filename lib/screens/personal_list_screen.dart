@@ -1,5 +1,9 @@
+import 'package:beechem/bloc/bloc/personaldetailslist_bloc.dart';
+import 'package:beechem/models/personaldetails/personaldetails.dart';
+import 'package:beechem/repository/apiservices.dart';
 import 'package:beechem/screens/personal_details_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PerssonalListScreen extends StatefulWidget {
   const PerssonalListScreen({super.key});
@@ -13,147 +17,181 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF5F7F9),
-      body: Column(
-        children: [
-          Stack(
-            alignment: Alignment.topCenter,
+    ApiServices apiServices = ApiServices();
+    return BlocProvider(
+      create: (context) =>
+          PersonaldetailslistBloc(apiServices)
+            ..add(CallPersonalDetailsApiEvent()),
+      child: Scaffold(
+        backgroundColor: Color(0xFFF5F7F9),
+        body: SingleChildScrollView(
+          child: Column(
             children: [
-              Image.asset("assets/images/Frame2.png", fit: BoxFit.fill),
-              Positioned(
-                top: 70,
-                right: 22,
-                child: CircleAvatar(
-                  radius: 19,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.person_3_rounded,
-                    size: 23,
-                    color: Colors.brown[900], // choose any color you want
+              Stack(
+                alignment: Alignment.topCenter,
+                children: [
+                  Image.asset("assets/images/Frame2.png", fit: BoxFit.fill),
+                  Positioned(
+                    top: 70,
+                    right: 22,
+                    child: CircleAvatar(
+                      radius: 19,
+                      backgroundColor: Colors.white,
+                      child: Icon(
+                        Icons.person_3_rounded,
+                        size: 23,
+                        color: Colors.brown[900], // choose any color you want
+                      ),
+                    ),
                   ),
-                ),
+                  Positioned(
+                    top: 70,
+                    left: 22,
+                    child: CircleAvatar(
+                      radius: 19,
+                      backgroundColor: Colors.white,
+                      child: Icon(
+                        Icons.grid_view_outlined,
+                        size: 23,
+                        color: Colors.brown[900], // choose any color you want
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 115,
+                    child: Text(
+                      'Personnel Details List',
+                      style: TextStyle(
+                        fontSize: 24,
+                        color: Colors.black,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              Positioned(
-                top: 70,
-                left: 22,
-                child: CircleAvatar(
-                  radius: 19,
-                  backgroundColor: Colors.white,
-                  child: Icon(
-                    Icons.grid_view_outlined,
-                    size: 23,
-                    color: Colors.brown[900], // choose any color you want
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 115,
-                child: Text(
-                  'Personnel Details List',
-                  style: TextStyle(
-                    fontSize: 24,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+
+              BlocBuilder<PersonaldetailslistBloc, PersonaldetailslistState>(
+                builder: (context, state) {
+                  if (state is PersonaldetailslistLoading) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 200),
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  }
+                  if (state is PersonaldetailslistFailure) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 200),
+                        child: Text("No Data Found"),
+                      ),
+                    );
+                  }
+                  if (state is PersonaldetailslistSuccess) {
+                    List<Data> contacts = state.data?.data ?? [];
+
+                    return Column(
+                      children: [
+                        SizedBox(height: 15),
+                        // search bar
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 80,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(30),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.1),
+                                        blurRadius: 12,
+                                        offset: Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: TextField(
+                                    decoration: InputDecoration(
+                                      hintText: "Search...",
+                                      border: InputBorder.none,
+                                      contentPadding: EdgeInsets.symmetric(
+                                        vertical: 5,
+                                        horizontal: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                flex: 20,
+                                child: CircleAvatar(
+                                  radius: 25,
+                                  backgroundColor: Colors.amber, // yellow
+                                  child: Text(
+                                    "GO",
+                                    style: TextStyle(
+                                      color: Colors.brown,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemBuilder: (context, index) {
+                            return Column(
+                              children: [
+                                detailsCard(
+                                  status: contacts[index].status == "1"
+                                      ? "active"
+                                      : "inactive",
+                                  name: contacts[index].firstName ?? '',
+                                  phone: contacts[index].contactNumber ?? '',
+                                  role: contacts[index].roleDetails!.isNotEmpty
+                                      ? contacts[index]
+                                                .roleDetails
+                                                ?.first
+                                                .role ??
+                                            ''
+                                      : '',
+                                  address: contacts[index].address ?? '',
+                                ),
+                                SizedBox(height: 15),
+                              ],
+                            );
+                          },
+                          itemCount: contacts.length,
+                        ),
+                      ],
+                    );
+                  }
+                  return SizedBox.shrink();
+                },
               ),
             ],
           ),
-          SizedBox(height: 15),
-          // search bar
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 80,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 12,
-                          offset: Offset(0, 3),
-                        ),
-                      ],
-                    ),
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "Search...",
-                        border: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(
-                          vertical: 5,
-                          horizontal: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  flex: 20,
-                  child: CircleAvatar(
-                    radius: 25,
-                    backgroundColor: Colors.amber, // yellow
-                    child: Text(
-                      "GO",
-                      style: TextStyle(
-                        color: Colors.brown,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 15),
-          detailsCard(
-            status: "active",
-            name: "Arun",
-            phone: "956321477410",
-            role: "Land owner",
-            address: "Villa no.13, banglore, karnataka, india, 675643",
-          ),
-          SizedBox(height: 15),
-          detailsCard(
-            status: "inactive",
-            name: "Arun",
-            phone: "956321477410",
-            role: "Land owner",
-            address: "Villa no.13, banglore, karnataka, india, 675643",
-          ),
-          SizedBox(height: 15),
-          detailsCard(
-            status: "inactive",
-            name: "Arun",
-            phone: "956321477410",
-            role: "Land owner",
-            address: "Villa no.13, banglore, karnataka, india, 675643",
-          ),
-          SizedBox(height: 15),
-          detailsCard(
-            status: "active",
-            name: "Arun",
-            phone: "956321477410",
-            role: "Land owner",
-            address: "Villa no.13, banglore, karnataka, india, 675643",
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => PersonalDetailsScreen()),
-          );
-        },
-        backgroundColor: Colors.amber,
-        child: Icon(Icons.add, color: Colors.brown[900], size: 42),
-        shape: CircleBorder(),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PersonalDetailsScreen()),
+            );
+          },
+          backgroundColor: Colors.amber,
+          child: Icon(Icons.add, color: Colors.brown[900], size: 42),
+          shape: CircleBorder(),
+        ),
       ),
     );
   }
@@ -196,11 +234,14 @@ Widget detailsCard({
                     children: [
                       Row(
                         children: [
-                          Text(
-                            name,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
+                          Expanded(
+                            child: Text(
+                              name,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
                           Spacer(),
