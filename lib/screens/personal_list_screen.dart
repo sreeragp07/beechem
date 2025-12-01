@@ -26,6 +26,7 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
   @override
   Widget build(BuildContext context) {
     ApiServices apiServices = ApiServices();
+    final nav = Navigator.of(context);
     return BlocProvider(
       create: (context) =>
           PersonaldetailslistBloc(apiServices)
@@ -219,13 +220,40 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => BlocProvider(
-                  create: (context) => PersonaldetailsaddBloc(apiServices),
-                  child: PersonalDetailsScreen(),
-                ),
+            nav.push(
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    BlocProvider(
+                      create: (context) => PersonaldetailsaddBloc(apiServices),
+                      child: const PersonalDetailsScreen(),
+                    ),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                      // Fade + Slide from right
+                      final fadeAnim = Tween<double>(
+                        begin: 0,
+                        end: 1,
+                      ).animate(animation);
+                      final slideAnim =
+                          Tween<Offset>(
+                            begin: const Offset(1, 0), // from right
+                            end: Offset.zero,
+                          ).animate(
+                            CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeInOut,
+                            ),
+                          );
+
+                      return FadeTransition(
+                        opacity: fadeAnim,
+                        child: SlideTransition(
+                          position: slideAnim,
+                          child: child,
+                        ),
+                      );
+                    },
+                transitionDuration: const Duration(milliseconds: 500),
               ),
             );
           },

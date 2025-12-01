@@ -18,6 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isChecked = false;
   String? emailError;
   String? passwordError;
+  bool isPasswordVisible = false;
 
   bool validate() {
     String email = emailController.text.trim();
@@ -70,6 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     ApiServices apiServices = ApiServices();
+    final nav = Navigator.of(context);
     return BlocProvider(
       create: (context) => LoginBloc(apiServices),
       child: Scaffold(
@@ -87,9 +89,39 @@ class _LoginScreenState extends State<LoginScreen> {
                 message: "Successfull Login",
                 isSuccess: true,
               );
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => PerssonalListScreen()),
+            
+              nav.pushReplacement(
+                PageRouteBuilder(
+                  pageBuilder: (context, animation, secondaryAnimation) =>
+                      const PerssonalListScreen(),
+                  transitionsBuilder:
+                      (context, animation, secondaryAnimation, child) {
+                        // Fade + Slide from right
+                        final fadeAnim = Tween<double>(
+                          begin: 0,
+                          end: 1,
+                        ).animate(animation);
+                        final slideAnim =
+                            Tween<Offset>(
+                              begin: const Offset(1, 0), // from right
+                              end: Offset.zero,
+                            ).animate(
+                              CurvedAnimation(
+                                parent: animation,
+                                curve: Curves.easeInOut,
+                              ),
+                            );
+
+                        return FadeTransition(
+                          opacity: fadeAnim,
+                          child: SlideTransition(
+                            position: slideAnim,
+                            child: child,
+                          ),
+                        );
+                      },
+                  transitionDuration: const Duration(milliseconds: 500),
+                ),
               );
               return;
             } else if (state is LoginFailure) {
@@ -186,7 +218,21 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     controller: passwordController,
                     textInputType: TextInputType.visiblePassword,
-                    obscureText: true,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        isPasswordVisible
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        color: Colors.grey[700],
+                        size: 20,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          isPasswordVisible = !isPasswordVisible;
+                        });
+                      },
+                    ),
+                    obscureText: isPasswordVisible,
                   ),
                   (passwordError != null)
                       ? Padding(
@@ -348,6 +394,7 @@ Widget inputField({
   required TextEditingController controller,
   required TextInputType textInputType,
   bool? obscureText,
+  Widget? suffixIcon,
 }) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -372,7 +419,7 @@ Widget inputField({
             ),
             child: TextField(
               controller: controller,
-              obscureText: obscureText ?? false,
+              obscureText: !(obscureText ?? true),
               keyboardType: textInputType,
               decoration: InputDecoration(
                 hintText: hintText,
@@ -390,6 +437,7 @@ Widget inputField({
                   borderRadius: BorderRadius.circular(40),
                   borderSide: BorderSide(color: Color(0xFFF4C714), width: 1.5),
                 ),
+                suffixIcon: suffixIcon,
               ),
             ),
           ),
