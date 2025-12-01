@@ -14,6 +14,13 @@ class PerssonalListScreen extends StatefulWidget {
 
 class _PerssonalListScreenState extends State<PerssonalListScreen> {
   String status = 'inactive';
+  TextEditingController searchController = TextEditingController();
+  String searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +97,17 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
                     );
                   }
                   if (state is PersonaldetailslistSuccess) {
-                    List<Data> contacts = state.data?.data ?? [];
+                    // List<Data> contacts = state.data?.data ?? [];
+
+                    List<Data> allContacts = state.data?.data ?? [];
+                    List<Data> contacts = searchQuery.isEmpty
+                        ? allContacts
+                        : allContacts.where((c) {
+                            final name = (c.firstName ?? '')
+                                .toString()
+                                .toLowerCase();
+                            return name.contains(searchQuery.toLowerCase());
+                          }).toList();
 
                     return Column(
                       children: [
@@ -115,6 +132,7 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
                                     ],
                                   ),
                                   child: TextField(
+                                    controller: searchController,
                                     decoration: InputDecoration(
                                       hintText: "Search...",
                                       border: InputBorder.none,
@@ -128,15 +146,22 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
                               ),
                               Expanded(
                                 flex: 20,
-                                child: CircleAvatar(
-                                  radius: 25,
-                                  backgroundColor: Colors.amber, // yellow
-                                  child: Text(
-                                    "GO",
-                                    style: TextStyle(
-                                      color: Colors.brown,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w600,
+                                child: GestureDetector(
+                                  onTap: (){
+                                    setState(() {
+                                        searchQuery = searchController.text.trim();
+                                      });
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 25,
+                                    backgroundColor: Colors.amber, // yellow
+                                    child: Text(
+                                      "GO",
+                                      style: TextStyle(
+                                        color: Colors.brown,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -144,8 +169,17 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
                             ],
                           ),
                         ),
-
+                        if (contacts.isEmpty) ...{
+                          Padding(
+                            padding: const EdgeInsets.only(top: 24),
+                            child: Text('No results for "$searchQuery"'),
+                          ),
+                        },
+                        SizedBox(
+                          height: 15,
+                        ),
                         ListView.builder(
+                          padding: EdgeInsets.zero,
                           shrinkWrap: true,
                           physics: NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
@@ -194,6 +228,12 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
   }
 }
 

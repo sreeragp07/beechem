@@ -286,7 +286,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      (state is LoginLoading) ? CircularProgressIndicator() : SizedBox.shrink()
+                      (state is LoginLoading) ? CircularProgressIndicator(color: Colors.brown[900],) : SizedBox.shrink()
                     ],
                   ),
                   SizedBox(height: 40),
@@ -427,17 +427,17 @@ void showCustomSnackBar({
   final snackBar = SnackBar(
     content: Row(
       children: [
-        Icon(isSuccess ? Icons.check_circle : Icons.error, color: Colors.white),
+        Icon(isSuccess ? Icons.check_circle : Icons.error, color: Colors.brown[900]),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             message,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: Colors.brown[900]),
           ),
         ),
       ],
     ),
-    backgroundColor: isSuccess ? Colors.green[600] : Colors.red[600],
+    backgroundColor: isSuccess ? Colors.amber[100] : Colors.red[100],
     behavior: SnackBarBehavior.floating,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
     margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
