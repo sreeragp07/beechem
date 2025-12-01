@@ -1,6 +1,9 @@
+import 'package:beechem/bloc/bloc/login_bloc.dart';
+import 'package:beechem/repository/apiservices.dart';
 import 'package:beechem/screens/personal_list_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -66,227 +69,266 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              alignment: Alignment.topCenter,
-              children: [
-                Image.asset(
-                  "assets/images/Frame1.png",
-                  width: double.infinity,
-                  height: 330,
-                  fit: BoxFit.fill,
-                ),
-                Positioned(
-                  top: 128,
-                  child: Image.asset(
-                    "assets/images/Vector.png",
-                    width: 82,
-                    height: 82,
-                  ),
-                ),
-                Positioned(
-                  top: 218,
-                  child: Text(
-                    'BEE CHEM',
-                    style: TextStyle(
-                      fontSize: 32,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 43),
-            Text(
-              'Welcome Back!',
-              style: TextStyle(
-                fontSize: 28,
-                color: Colors.black,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            Text(
-              'Login to your account',
-              style: TextStyle(
-                height: 2.5,
-                fontSize: 16,
-                color: Color(0xFF8A8A8A),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            SizedBox(height: 30),
-            inputField(
-              hintText: 'Email address',
-              prefixIcon: Icon(
-                Icons.email_outlined,
-                size: 30,
-                color: Color(0xFF8A8A8A),
-              ),
-              controller: emailController,
-              textInputType: TextInputType.emailAddress,
-            ),
-            (emailError != null)
-                ? Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        emailError!,
-                        style: TextStyle(color: Colors.red, fontSize: 13),
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-
-            SizedBox(height: 10),
-            inputField(
-              hintText: 'password',
-              prefixIcon: Icon(
-                Icons.lock_outline,
-                size: 30,
-                color: Color(0xFF8A8A8A),
-              ),
-              controller: passwordController,
-              textInputType: TextInputType.visiblePassword,
-              obscureText: true,
-            ),
-            (passwordError != null)
-                ? Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        passwordError!,
-                        style: TextStyle(color: Colors.red, fontSize: 13),
-                      ),
-                    ),
-                  )
-                : SizedBox.shrink(),
-
-            Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Row(
+    ApiServices apiServices = ApiServices();
+    return BlocProvider(
+      create: (context) => LoginBloc(apiServices),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: BlocConsumer<LoginBloc, LoginState>(
+          listener: (context, state) async {
+            if (state is LoginSuccess) {
+              SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+              await prefs.setString(
+                              "access_token",
+                              state.data?.accessToken ?? '',
+                            );
+              showCustomSnackBar(
+                context: context,
+                message: "Successfull Login",
+                isSuccess: true,
+              );
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PerssonalListScreen()),
+              );
+              return;
+            } else if (state is LoginFailure) {
+              showCustomSnackBar(
+                context: context,
+                message: "Login Failed",
+                isSuccess: false,
+              );
+            }
+          },
+          builder: (context, state) {
+            return SingleChildScrollView(
+              child: Column(
                 children: [
-                  Checkbox(
-                    value: isChecked,
-                    fillColor: WidgetStateProperty.all(Colors.amber),
-                    activeColor: Colors.white,
-                    side: BorderSide(color: Colors.white),
-                    onChanged: (value) {
-                      setState(() {
-                        isChecked = value!;
-                      });
-                    },
+                  Stack(
+                    alignment: Alignment.topCenter,
+                    children: [
+                      Image.asset(
+                        "assets/images/Frame1.png",
+                        width: double.infinity,
+                        height: 330,
+                        fit: BoxFit.fill,
+                      ),
+                      Positioned(
+                        top: 128,
+                        child: Image.asset(
+                          "assets/images/Vector.png",
+                          width: 82,
+                          height: 82,
+                        ),
+                      ),
+                      Positioned(
+                        top: 218,
+                        child: Text(
+                          'BEE CHEM',
+                          style: TextStyle(
+                            fontSize: 32,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Text("Remember me"),
-                  Spacer(),
+                  SizedBox(height: 43),
+                  Text(
+                    'Welcome Back!',
+                    style: TextStyle(
+                      fontSize: 28,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    'Login to your account',
+                    style: TextStyle(
+                      height: 2.5,
+                      fontSize: 16,
+                      color: Color(0xFF8A8A8A),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  inputField(
+                    hintText: 'Email address',
+                    prefixIcon: Icon(
+                      Icons.email_outlined,
+                      size: 30,
+                      color: Color(0xFF8A8A8A),
+                    ),
+                    controller: emailController,
+                    textInputType: TextInputType.emailAddress,
+                  ),
+                  (emailError != null)
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              emailError!,
+                              style: TextStyle(color: Colors.red, fontSize: 13),
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink(),
+
+                  SizedBox(height: 10),
+                  inputField(
+                    hintText: 'password',
+                    prefixIcon: Icon(
+                      Icons.lock_outline,
+                      size: 30,
+                      color: Color(0xFF8A8A8A),
+                    ),
+                    controller: passwordController,
+                    textInputType: TextInputType.visiblePassword,
+                    obscureText: true,
+                  ),
+                  (passwordError != null)
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              passwordError!,
+                              style: TextStyle(color: Colors.red, fontSize: 13),
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink(),
+
                   Padding(
-                    padding: const EdgeInsets.only(right: 20),
-                    child: InkWell(
-                      onTap: () {},
-                      child: Text(
-                        "FORGOT PASSWORD?",
-                        style: TextStyle(
-                          color: Colors.amber,
-                          fontWeight: FontWeight.w600,
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Row(
+                      children: [
+                        Checkbox(
+                          value: isChecked,
+                          fillColor: WidgetStateProperty.all(Colors.amber),
+                          activeColor: Colors.white,
+                          side: BorderSide(color: Colors.white),
+                          onChanged: (value) {
+                            setState(() {
+                              isChecked = value!;
+                            });
+                          },
+                        ),
+                        Text("Remember me"),
+                        Spacer(),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: InkWell(
+                            onTap: () {},
+                            child: Text(
+                              "FORGOT PASSWORD?",
+                              style: TextStyle(
+                                color: Colors.amber,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  // Login Button
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStateProperty.all(
+                            Colors.amber[400],
+                          ),
+                        ),
+                        onPressed: () async {
+                          if (!validate()) return;
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+
+                          if (isChecked) {
+                            await prefs.setString(
+                              "saved_email",
+                              emailController.text,
+                            );
+                            await prefs.setBool("is_remembered", true);
+                          } else {
+                            await prefs.remove("saved_email");
+                            await prefs.setBool("is_remembered", false);
+                          }
+
+                          if (!mounted) return;
+
+                          context.read<LoginBloc>().add(
+                            CallLoginApiEvent(
+                              email: emailController.text,
+                              password: passwordController.text,
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'LOGIN',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.brown[900],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
-            ),
-            SizedBox(height: 10),
-            // Login Button
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  style: ButtonStyle(
-                    backgroundColor: WidgetStateProperty.all(Colors.amber[400]),
-                  ),
-                  onPressed: () async {
-                    if (!validate()) return;
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-
-                    if (isChecked) {
-                      await prefs.setString(
-                        "saved_email",
-                        emailController.text,
-                      );
-                      await prefs.setBool("is_remembered", true);
-                    } else {
-                      await prefs.remove("saved_email");
-                      await prefs.setBool("is_remembered", false);
-                    }
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PerssonalListScreen(),
+                  SizedBox(height: 40),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Divider(
+                          thickness: 1,
+                          color: Colors.grey,
+                          height: 10,
+                          indent: 20,
+                          endIndent: 5,
+                        ),
                       ),
-                    );
-                  },
-                  child: Text(
-                    'LOGIN',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.brown[900],
+                      Text("OR"),
+                      Expanded(
+                        child: Divider(
+                          thickness: 1,
+                          color: Colors.grey,
+                          height: 10,
+                          indent: 5,
+                          endIndent: 20,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 35),
+                  RichText(
+                    text: TextSpan(
+                      text: "Don't have an account? ",
+                      style: TextStyle(color: Colors.black, fontSize: 16),
+                      children: [
+                        TextSpan(
+                          text: 'REGISTER',
+                          style: TextStyle(
+                            color: Colors.amber,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ),
-            ),
-            SizedBox(height: 40),
-            Row(
-              children: [
-                Expanded(
-                  child: Divider(
-                    thickness: 1,
-                    color: Colors.grey,
-                    height: 10,
-                    indent: 20,
-                    endIndent: 5,
-                  ),
-                ),
-                Text("OR"),
-                Expanded(
-                  child: Divider(
-                    thickness: 1,
-                    color: Colors.grey,
-                    height: 10,
-                    indent: 5,
-                    endIndent: 20,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 35),
-            RichText(
-              text: TextSpan(
-                text: "Don't have an account? ",
-                style: TextStyle(color: Colors.black, fontSize: 16),
-                children: [
-                  TextSpan(
-                    text: 'REGISTER',
-                    style: TextStyle(
-                      color: Colors.amber,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  SizedBox(height: 35),
                 ],
               ),
-            ),
-            SizedBox(height: 35),
-          ],
+            );
+          },
         ),
       ),
     );
@@ -370,4 +412,33 @@ Widget inputField({
       ],
     ),
   );
+}
+
+void showCustomSnackBar({
+  required BuildContext context,
+  required String message,
+  required bool isSuccess,
+}) {
+  final snackBar = SnackBar(
+    content: Row(
+      children: [
+        Icon(isSuccess ? Icons.check_circle : Icons.error, color: Colors.white),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            message,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+        ),
+      ],
+    ),
+    backgroundColor: isSuccess ? Colors.green[600] : Colors.red[600],
+    behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    duration: const Duration(seconds: 2),
+    elevation: 6,
+  );
+
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
 }
