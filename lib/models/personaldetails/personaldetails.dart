@@ -44,25 +44,26 @@ class Data {
   List<RoleDetails>? roleDetails;
   List<String>? apiaryRoleArray;
 
-  Data(
-      {this.id,
-      this.firstName,
-      this.lastName,
-      this.address,
-      this.latitude,
-      this.longitude,
-      this.suburb,
-      this.state,
-      this.postcode,
-      this.country,
-      this.contactNumber,
-      this.additionalNotes,
-      this.status,
-      this.roleIds,
-      this.createdBy,
-      this.updatedBy,
-      this.roleDetails,
-      this.apiaryRoleArray});
+  Data({
+    this.id,
+    this.firstName,
+    this.lastName,
+    this.address,
+    this.latitude,
+    this.longitude,
+    this.suburb,
+    this.state,
+    this.postcode,
+    this.country,
+    this.contactNumber,
+    this.additionalNotes,
+    this.status,
+    this.roleIds,
+    this.createdBy,
+    this.updatedBy,
+    this.roleDetails,
+    this.apiaryRoleArray,
+  });
 
   Data.fromJson(Map<String, dynamic> json) {
     id = json['id'];

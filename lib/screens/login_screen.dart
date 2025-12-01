@@ -87,7 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 message: "Successfull Login",
                 isSuccess: true,
               );
-              Navigator.push(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => PerssonalListScreen()),
               );
@@ -254,7 +254,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               if (!validate()) return;
                               SharedPreferences prefs =
                                   await SharedPreferences.getInstance();
-                      
+
                               if (isChecked) {
                                 await prefs.setString(
                                   "saved_email",
@@ -265,9 +265,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                 await prefs.remove("saved_email");
                                 await prefs.setBool("is_remembered", false);
                               }
-                      
+
                               if (!mounted) return;
-                      
+
                               context.read<LoginBloc>().add(
                                 CallLoginApiEvent(
                                   email: emailController.text,
@@ -286,7 +286,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      (state is LoginLoading) ? CircularProgressIndicator(color: Colors.brown[900],) : SizedBox.shrink()
+                      (state is LoginLoading)
+                          ? CircularProgressIndicator(color: Colors.brown[900])
+                          : SizedBox.shrink(),
                     ],
                   ),
                   SizedBox(height: 40),
@@ -427,12 +429,19 @@ void showCustomSnackBar({
   final snackBar = SnackBar(
     content: Row(
       children: [
-        Icon(isSuccess ? Icons.check_circle : Icons.error, color: Colors.brown[900]),
+        Icon(
+          isSuccess ? Icons.check_circle : Icons.error,
+          color: Colors.brown[900],
+        ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             message,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500,color: Colors.brown[900]),
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.brown[900],
+            ),
           ),
         ),
       ],

@@ -1,3 +1,4 @@
+import 'package:beechem/bloc/bloc/personaldetailsadd_bloc.dart';
 import 'package:beechem/bloc/bloc/personaldetailslist_bloc.dart';
 import 'package:beechem/models/personaldetails/personaldetails.dart';
 import 'package:beechem/repository/apiservices.dart';
@@ -84,7 +85,9 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
                     return Center(
                       child: Padding(
                         padding: const EdgeInsets.only(top: 200),
-                        child: CircularProgressIndicator(),
+                        child: CircularProgressIndicator(
+                          color: Colors.brown[900],
+                        ),
                       ),
                     );
                   }
@@ -147,10 +150,11 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
                               Expanded(
                                 flex: 20,
                                 child: GestureDetector(
-                                  onTap: (){
+                                  onTap: () {
                                     setState(() {
-                                        searchQuery = searchController.text.trim();
-                                      });
+                                      searchQuery = searchController.text
+                                          .trim();
+                                    });
                                   },
                                   child: CircleAvatar(
                                     radius: 25,
@@ -175,9 +179,7 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
                             child: Text('No results for "$searchQuery"'),
                           ),
                         },
-                        SizedBox(
-                          height: 15,
-                        ),
+                        SizedBox(height: 15),
                         ListView.builder(
                           padding: EdgeInsets.zero,
                           shrinkWrap: true,
@@ -219,7 +221,12 @@ class _PerssonalListScreenState extends State<PerssonalListScreen> {
           onPressed: () {
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => PersonalDetailsScreen()),
+              MaterialPageRoute(
+                builder: (context) => BlocProvider(
+                  create: (context) => PersonaldetailsaddBloc(apiServices),
+                  child: PersonalDetailsScreen(),
+                ),
+              ),
             );
           },
           backgroundColor: Colors.amber,

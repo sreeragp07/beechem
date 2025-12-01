@@ -1,5 +1,10 @@
+import 'package:beechem/bloc/bloc/personaldetailsadd_bloc.dart';
+import 'package:beechem/repository/apiservices.dart';
+import 'package:beechem/screens/login_screen.dart';
+import 'package:beechem/screens/personal_list_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class PersonalDetailsScreen extends StatefulWidget {
   const PersonalDetailsScreen({super.key});
@@ -12,16 +17,52 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
   TextEditingController fullName = TextEditingController();
   TextEditingController address = TextEditingController();
   TextEditingController suburb = TextEditingController();
-  TextEditingController state = TextEditingController();
+  TextEditingController stateController = TextEditingController();
   TextEditingController postCode = TextEditingController();
   TextEditingController contact = TextEditingController();
   TextEditingController additionalNotes = TextEditingController();
   bool isActive = false;
+  String? fullNameError;
+  String? addressError;
+  String? contactNumberError;
 
   List<String> roles = ["Colony Owner", "Chem Applicator", "Land Owner"];
 
   // map to store checked values
   Map<String, bool> selectedRoles = {};
+
+  bool validate() {
+    String fullName = this.fullName.text.trim();
+    String address = this.address.text.trim();
+    String contactNumber = contact.text.trim();
+
+    setState(() {
+      // Full name
+      if (fullName.isEmpty) {
+        fullNameError = "Fullname is required";
+      } else {
+        fullNameError = null;
+      }
+
+      // Address
+      if (address.isEmpty) {
+        addressError = "Address is required";
+      } else {
+        addressError = null;
+      }
+
+      // Contact number
+      if (contactNumber.isEmpty) {
+        contactNumberError = "Contact is required";
+      } else {
+        contactNumberError = null;
+      }
+    });
+
+    return fullNameError == null &&
+        contactNumberError == null &&
+        addressError == null;
+  }
 
   @override
   void initState() {
@@ -34,246 +75,347 @@ class _PersonalDetailsScreenState extends State<PersonalDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(0xFFF5F7F9),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Stack(
-              alignment: Alignment.topCenter,
-              children: [
-                Image.asset("assets/images/Frame2.png", fit: BoxFit.fill),
-                Positioned(
-                  top: 70,
-                  right: 22,
-                  child: CircleAvatar(
-                    radius: 19,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.person_3_rounded,
-                      size: 23,
-                      color: Colors.brown[900], // choose any color you want
-                    ),
-                  ),
-                ),
-                Positioned(
-                  top: 70,
-                  left: 22,
-                  child: CircleAvatar(
-                    radius: 19,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.grid_view_outlined,
-                      size: 23,
-                      color: Colors.brown[900], // choose any color you want
-                    ),
-                  ),
-                ),
-
-                Positioned(
-                  top: 115,
-                  child: Text(
-                    'Personnel Details',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 15),
-
-            formInputField(
-              controller: fullName,
-              label: "Full name",
-              hintText: "Please type",
-            ),
-            SizedBox(height: 15),
-            formInputField(
-              controller: address,
-              label: "Address",
-              hintText: "Please type",
-              prefixIcon: Icon(
-                Icons.location_on_outlined,
-                size: 23,
-                color: Colors.black,
-              ),
-              suffixIcon: Icon(
-                Icons.my_location_outlined,
-                size: 23,
-                color: Colors.black,
-              ),
-            ),
-            SizedBox(height: 15),
-            formInputField(
-              controller: suburb,
-              label: "Suburb",
-              hintText: "Please type",
-            ),
-            SizedBox(height: 15),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
+    ApiServices apiServices = ApiServices();
+    return BlocProvider(
+      create: (context) => PersonaldetailsaddBloc(apiServices),
+      child: BlocConsumer<PersonaldetailsaddBloc, PersonaldetailsaddState>(
+        listener: (context, state) {
+          if (state is PersonaldetailsaddFailure) {
+            showCustomSnackBar(
+              context: context,
+              message: "Unable to save data",
+              isSuccess: false,
+            );
+          }
+          if (state is PersonaldetailsaddSuccess) {
+            showCustomSnackBar(
+              context: context,
+              message: "Details Saved Successfully",
+              isSuccess: true,
+            );
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => PerssonalListScreen()),
+            );
+          }
+        },
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: Color(0xFFF5F7F9),
+            body: SingleChildScrollView(
+              child: Stack(
                 children: [
-                  Expanded(
-                    child: formInputField(
-                      controller: state,
-                      label: "State",
-                      hintText: "Please type",
-                      horizontalPadding: 0,
-                    ),
-                  ),
-                  SizedBox(width: 20),
-                  Expanded(
-                    child: formInputField(
-                      controller: postCode,
-                      label: "Post code",
-                      hintText: "Please type",
-                      horizontalPadding: 0,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: 15),
-
-            formInputField(
-              controller: contact,
-              label: "Contact",
-              hintText: "Please type",
-            ),
-            SizedBox(height: 15),
-            Padding(
-              padding: const EdgeInsets.only(left: 20, bottom: 10),
-              child: Text(
-                "Role",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400),
-              ),
-            ),
-            Card(
-              elevation: 0,
-              margin: EdgeInsets.symmetric(horizontal: 20),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(25),
-                side: BorderSide.none,
-              ),
-              color: Colors.white,
-              child: Column(
-                children: roles.map((role) {
-                  return Row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Checkbox(
-                        value: selectedRoles[role],
-                        activeColor: Colors.amber,
-                        onChanged: (bool? value) {
-                          setState(() {
-                            selectedRoles[role] = value!;
-                          });
-                        },
-                      ),
-                      Text(role, style: TextStyle(fontSize: 16)),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-            SizedBox(height: 15),
+                      Stack(
+                        alignment: Alignment.topCenter,
+                        children: [
+                          Image.asset(
+                            "assets/images/Frame2.png",
+                            fit: BoxFit.fill,
+                          ),
+                          Positioned(
+                            top: 70,
+                            right: 22,
+                            child: CircleAvatar(
+                              radius: 19,
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                Icons.person_3_rounded,
+                                size: 23,
+                                color: Colors
+                                    .brown[900], 
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            top: 70,
+                            left: 22,
+                            child: CircleAvatar(
+                              radius: 19,
+                              backgroundColor: Colors.white,
+                              child: Icon(
+                                Icons.grid_view_outlined,
+                                size: 23,
+                                color: Colors
+                                    .brown[900], 
+                              ),
+                            ),
+                          ),
 
-            formInputField(
-              controller: additionalNotes,
-              label: "Additional Notes",
-              hintText: "Please type",
-              maxLines: 5,
-              maxLength: 500,
-            ),
-            SizedBox(height: 15),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                height: 55,
-                child: Row(
-                  children: [
-                    SizedBox(width: 20),
-                    Text(
-                      "Status",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
+                          Positioned(
+                            top: 115,
+                            child: Text(
+                              'Personnel Details',
+                              style: TextStyle(
+                                fontSize: 24,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 15),
+
+                      formInputField(
+                        controller: fullName,
+                        label: "Full name",
+                        hintText: "Please type",
+                      ),
+                      (fullNameError != null)
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              fullNameError!,
+                              style: TextStyle(color: Colors.red, fontSize: 13),
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                      SizedBox(height: 15),
+                      formInputField(
+                        controller: address,
+                        label: "Address",
+                        hintText: "Please type",
+                        prefixIcon: Icon(
+                          Icons.location_on_outlined,
+                          size: 23,
+                          color: Colors.black,
+                        ),
+                        suffixIcon: Icon(
+                          Icons.my_location_outlined,
+                          size: 23,
+                          color: Colors.black,
+                        ),
+                      ),
+                      (addressError != null)
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              addressError!,
+                              style: TextStyle(color: Colors.red, fontSize: 13),
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                      SizedBox(height: 15),
+                      formInputField(
+                        controller: suburb,
+                        label: "Suburb",
+                        hintText: "Please type",
+                      ),
+                      SizedBox(height: 15),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: formInputField(
+                                controller: stateController,
+                                label: "State",
+                                hintText: "Please type",
+                                horizontalPadding: 0,
+                              ),
+                            ),
+                            SizedBox(width: 20),
+                            Expanded(
+                              child: formInputField(
+                                controller: postCode,
+                                label: "Post code",
+                                hintText: "Please type",
+                                horizontalPadding: 0,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 15),
+
+                      formInputField(
+                        controller: contact,
+                        label: "Contact",
+                        hintText: "Please type",
+                      ),
+                      (contactNumberError != null)
+                      ? Padding(
+                          padding: const EdgeInsets.only(right: 20),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              contactNumberError!,
+                              style: TextStyle(color: Colors.red, fontSize: 13),
+                            ),
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                      SizedBox(height: 15),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20, bottom: 10),
+                        child: Text(
+                          "Role",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                      Card(
+                        elevation: 0,
+                        margin: EdgeInsets.symmetric(horizontal: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          side: BorderSide.none,
+                        ),
+                        color: Colors.white,
+                        child: Column(
+                          children: roles.map((role) {
+                            return Row(
+                              children: [
+                                Checkbox(
+                                  value: selectedRoles[role],
+                                  activeColor: Colors.amber,
+                                  onChanged: (bool? value) {
+                                    setState(() {
+                                      selectedRoles[role] = value!;
+                                    });
+                                  },
+                                ),
+                                Text(role, style: TextStyle(fontSize: 16)),
+                              ],
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                      SizedBox(height: 15),
+
+                      formInputField(
+                        controller: additionalNotes,
+                        label: "Additional Notes",
+                        hintText: "Please type",
+                        maxLines: 5,
+                        maxLength: 500,
+                      ),
+                      SizedBox(height: 15),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          height: 55,
+                          child: Row(
+                            children: [
+                              SizedBox(width: 20),
+                              Text(
+                                "Status",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                ),
+                              ),
+                              Spacer(),
+                              CupertinoSwitch(
+                                value: isActive,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    isActive = value;
+                                  });
+                                },
+                                activeColor: Colors.green,
+                                trackColor: Colors.grey,
+                              ),
+                              SizedBox(width: 20),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 50),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                  backgroundColor: WidgetStateProperty.all(
+                                    Colors.grey[350],
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                },
+                                child: Text(
+                                  'CANCEL',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.brown[900],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 60),
+                            Expanded(
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                  backgroundColor: WidgetStateProperty.all(
+                                    Colors.amber[400],
+                                  ),
+                                ),
+                                onPressed: () {
+                                  if (!validate()) return;
+                                  context.read<PersonaldetailsaddBloc>().add(
+                                    CallPersonalDetailsAddApiEvent(
+                                      firstName: fullName.text,
+                                      address: address.text,
+                                      suburb: suburb.text,
+                                      state: stateController.text,
+                                      postcode: postCode.text,
+                                      contactNumber: contact.text,
+                                      status: isActive ? '1' : '0',
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'SAVE',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.brown[900],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 45),
+                    ],
+                  ),
+                  if (state is PersonaldetailsaddLoading) ...[
+                    Positioned.fill(
+                      child: Container(
+                        color: Colors.black.withOpacity(0.35),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.brown[900],
+                          ),
+                        ),
                       ),
                     ),
-                    Spacer(),
-                    CupertinoSwitch(
-                      value: isActive,
-                      onChanged: (bool value) {
-                        setState(() {
-                          isActive = value;
-                        });
-                      },
-                      activeColor: Colors.green,
-                      trackColor: Colors.grey,
-                    ),
-                    SizedBox(width: 20),
                   ],
-                ),
-              ),
-            ),
-            SizedBox(height: 50),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(
-                          Colors.grey[350],
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        'CANCEL',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.brown[900],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 60),
-                  Expanded(
-                    child: ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStateProperty.all(
-                          Colors.amber[400],
-                        ),
-                      ),
-                      onPressed: () {},
-                      child: Text(
-                        'SAVE',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.brown[900],
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
               ),
             ),
-            SizedBox(height: 45),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
